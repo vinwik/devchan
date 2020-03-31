@@ -1,0 +1,6 @@
+{
+  "mongoURI": "mongodb+srv://vinwik:moimoi77@devchan-whtil.mongodb.net/test?retryWrites=true&w=majority",
+  "jwtSecret": "mysecrettoken",
+  "githubCLientId": "6f5c3c80bfd180879e48",
+  "githubCLientSecret": "a268fad257fc3973b7a506b49c84641beb487a8b"
+}
