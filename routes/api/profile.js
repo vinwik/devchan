@@ -1,7 +1,6 @@
 const express = require("express");
-const request = require("request");
-const config = require("config");
 const router = express.Router();
+const request = require("request");
 const auth = require("../../middleware/auth");
 const { check, validationResult } = require("express-validator");
 
@@ -21,6 +20,7 @@ router.get("/me", auth, async (req, res) => {
     if (!profile) {
       return res.status(400).json({ msg: "No profile found for this user" });
     }
+    res.json(profile);
   } catch (err) {
     console.error(err.message);
     res.status(500).send("Server Error");
@@ -153,8 +153,6 @@ router.get("/user/:user_id", async (req, res) => {
 
 router.delete("/", auth, async (req, res) => {
   try {
-    // @todo - remove users posts
-
     // Remove profile
     await Profile.findOneAndRemove({ user: req.user.id });
     await User.findOneAndRemove({ _id: req.user.id });
@@ -172,11 +170,7 @@ router.delete("/", auth, async (req, res) => {
 router.get("/github/:username", async (req, res) => {
   try {
     const options = {
-      uri: `https://api.github.com/users/${
-        req.params.username
-      }/repos?per_page=5&sort=created:asc&client_id=${config.get(
-        "githubCLientId"
-      )}&client_secret=${config.get("githubCLientSecret")}`,
+      uri: `https://api.github.com/users/${req.params.username}/repos?per_page=5&sort=created:asc&client_id=${process.env.GITHUB_CLIENT_ID}&client_secret=${process.env.GITHUB_CLIENT_SECRET}`,
       method: "GET",
       headers: { "user-agent": "node.js" }
     };
