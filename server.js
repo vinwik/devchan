@@ -24,7 +24,7 @@ app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
 // Serve static assets in production
 if (process.env.NODE_ENV === "production") {
   // Set static folder
-  app.use(express.static("client/build"));
+  app.use("/", express.static("client/build"));
   app.get("*", (res, req) => {
     res.sendFile(path.join(__dirname, "client/build", "index.html"));
   });
