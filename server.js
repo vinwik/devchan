@@ -1,6 +1,7 @@
 const express = require("express");
 require("dotenv").config();
 const connectDB = require("./config/db");
+const path = require("path");
 
 const app = express();
 
@@ -10,7 +11,16 @@ connectDB();
 // Init Middleware
 app.use(express.json({ extended: false }));
 
-app.get("/", (req, res) => res.send("API running"));
+// app.get("/", (req, res) => res.send("API running"));
+
+// Serve static assets in production
+if (process.env.NODE.ENV === "production") {
+  // Set static folder
+  app.use(express.static("client/build"));
+  app.get("*", (res, req) => {
+    res.sendFile(path.resolve(__dirname, "client", "build", "index.html"));
+  });
+}
 
 // Define Routes
 app.use("/api/users", require("./routes/api/users"));
