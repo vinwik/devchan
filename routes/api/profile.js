@@ -50,60 +50,44 @@ router.post(
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-
     const {
       company,
-      website,
       location,
+      website,
       bio,
+      skills,
       status,
       githubusername,
-      skills,
       youtube,
-      facebook,
       twitter,
       instagram,
-      linkedin
+      linkedin,
+      facebook
     } = req.body;
 
-    // BUild profile object
-    const profileFields = {};
-    profileFields.user = req.user.id;
-    if (company) profileFields.company = company;
-    if (website) profileFields.website = website;
-    if (location) profileFields.location = location;
-    if (bio) profileFields.bio = bio;
-    if (status) profileFields.status = status;
-    if (githubusername) profileFields.githubusername = githubusername;
-    if (skills) {
-      profileFields.skills = skills.split(",").map(skill => skill.trim());
-    }
+    const profileFields = {
+      user: req.user.id,
+      company,
+      location,
+      website,
+      bio,
+      skills: skills.split(",").map(skill => skill.trim()),
+      status,
+      githubusername
+    };
 
-    // BUild social objects
-    profileFields.social = {};
-    if (youtube) profileFields.social.youtube = youtube;
-    if (twitter) profileFields.social.twitter = twitter;
-    if (facebook) profileFields.social.facebook = facebook;
-    if (instagram) profileFields.social.instagram = instagram;
-    if (linkedin) profileFields.social.linkedin = linkedin;
+    // Build social object and add to profileFields
+    const socialfields = { youtube, twitter, instagram, linkedin, facebook };
+
+    profileFields.social = socialfields;
 
     try {
-      let profile = await Profile.findOne({ user: req.user.id });
-
-      if (profile) {
-        // Update
-        profile = await Profile.findOneAndUpdate(
-          { user: req.user.id },
-          { $set: profileFields },
-          { new: true }
-        );
-        return res.json(profile);
-      }
-
-      // Create
-      profile = new Profile(profileFields);
-
-      await profile.save();
+      // Using upsert option (creates new doc if no match is found):
+      let profile = await Profile.findOneAndUpdate(
+        { user: req.user.id },
+        { $set: profileFields },
+        { new: true, upsert: true }
+      );
       res.json(profile);
     } catch (err) {
       console.error(err.message);
